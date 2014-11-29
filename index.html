@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <link rel="stylesheet" href="bootstrap.css" media="screen">
+    <style type="text/css">
+    body{
+      margin: 10%;
+      background: #ecf0ef;
+    }
+    #connect-form{
+      background: white;
+      padding: 10px;
+    }
+    #connect-form legend{
+      background: #6c7;
+      border-radius: 2px;
+      border-bottom: 2px solid white;
+      margin-bottom: 10px;
+    }
+    #connect-form .form-control{
+      background: transparent;
+      border-bottom: 2px dashed #6c7;
+      
+      font-size: 18px;
+    }
+    #connect-form .form-control:focus{
+      border-bottom: 2px dashed #6c7;
+    }
+    #connect-form #connect-btn{
+      background-color: #4ab367;
+      font-size: 18px;
+      font-weight: bold;
+    }
+    
+    </style>
+</head>
+<body style="-webkit-app-region: drag">
+  <form class="form-horizontal" id="connect-form">
+    <fieldset>
+      <legend><h3><img src="icons/32x32.png"></img>Pushbullet Connect</h3></legend>
+      <div class="form-group">
+        <div class="col-lg-10">
+          <input type="text" class="form-control" id="api-key" placeholder="API Key">
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="col-lg-10 col-lg-offset-2">
+          <button type="submit" class="btn btn-primary" id="connect-btn">Connect</button>
+        </div>
+      </div>
+    </fieldset>
+  </form>
+    <script type="text/javascript" src="jquery.js"></script>
+    <script type="text/javascript" src="script.js"></script>
+</body>
+</html>

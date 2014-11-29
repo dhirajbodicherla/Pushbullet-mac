@@ -1,0 +1,28 @@
+{
+  "main": "index.html",
+  "name": "Pushbullet",
+  "description": "Pushbullet connects your devices, making it easy and automatic to share almost anything between them.",
+  "version": "0.1.0",
+  "keywords": [
+    "push",
+    "notifications"
+  ],
+  "window": {
+    "show": false,
+    "show_in_taskbar": false,
+    "title": "Pushbullet",
+    "toolbar": false,
+    "frame": true,
+    "width": 450,
+    "height": 500,
+    "position": "mouse",
+    "resizable": true,
+    "icon": "icons/128x128.png"
+  },
+  "webkit": {
+    "plugin": true
+  },
+  "dependencies": {
+    "node-notifier": "^4.0.2"
+  }
+}
