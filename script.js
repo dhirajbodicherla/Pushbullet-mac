@@ -39,7 +39,25 @@ function init(){
   tray.menu = new gui.Menu();
 
   tray.menu.append(new gui.MenuItem({
-    label: 'sign out',
+    label: 'New Push',
+    click: function(){
+      // newPush();
+    }
+  }));
+
+  tray.menu.append(new gui.MenuItem({
+    label: 'All Pushes',
+    click: function(){
+      // allPushes();
+    }
+  }));
+
+  tray.menu.append(new gui.MenuItem({
+    type: 'separator'
+  }));
+
+  tray.menu.append(new gui.MenuItem({
+    label: 'Sign Out',
     click: function(){
       signOut();
     }
@@ -55,21 +73,36 @@ function init(){
   win.setShowInTaskbar(false);
 }
 
+function notifyPush(message){
+  notifier.notify({
+    title: message.push.title,
+    message: message.push.body,
+    sound: true,
+    wait: true 
+  }, function (err, response) {
+    
+  });
+}
+
 function connect(api_key){
   websocket = new WebSocket('wss://stream.pushbullet.com/websocket/' + api_key);
   websocket.onopen = function(e) {
     
   }
   websocket.onmessage = function(message) {
+    if (JSON.parse(message.data).type == 'tickle') {
+      var timeStamp = message.timeStamp;
+      $.ajax({
+          url: 'https://api.pushbullet.com/v2/pushes?modified_after=' + timeStamp,
+          type: 'GET',
+          beforeSend: function(xhr){xhr.setRequestHeader('Authorization', 'Bearer ' + api_key);},
+          success: function (result) {
+              // console.log(result);
+              notifyPush(result);
+          }
 
-    notifier.notify({
-      title: message.push.title,
-      message: message.push.body,
-      sound: true,
-      wait: true 
-    }, function (err, response) {
-      
-    });
+      });
+    }
   }
   websocket.onerror = function(e) {
       // messages.innerHTML += "<p>WebSocket onerror</p>";
