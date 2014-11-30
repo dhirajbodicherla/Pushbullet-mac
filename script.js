@@ -189,8 +189,8 @@ $(document).ready(function(){
         pushStatus.addClass('text-success').text('Successfully Pushed !');
           self[0].reset();
           setTimeout(function(){
-            pushStatus.text('');
-            hideWindow();
+            // pushStatus.text('');
+            // hideWindow();
           }, 2000);
           // notifyPush(result);
       },

@@ -40,14 +40,16 @@
       font-weight: bold;
       border-radius: 6px;
     }
-    form .btn-primary:hover{
+    form .btn-primary:hover, form .btn-primary:active, form .btn-primary:focus {
+      outline: none;
       background-color: #6ec07c;
     }
     form .btn-default{
       color: black;
       background-color: white;
     }
-    form .btn-default:hover{
+    form .btn-default:hover, form .btn-default:active, form .btn-default:focus {
+      outline: none;
       color: black;
       background-color: white;
     }
@@ -95,7 +97,7 @@
         <div class="col-lg-10 col-lg-offset-2">
           <button type="submit" class="btn btn-primary" id="new-push-btn">Push it!</button>
           <button type="reset" class="btn btn-default" id="new-push-cancel-btn">Cancel</button>
-          <span class="push-status"></span>
+          <p class="push-status"></p>
         </div>
       </div>
     </fieldset>
