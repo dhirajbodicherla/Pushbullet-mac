@@ -8,31 +8,53 @@
       margin: 10%;
       background: #ecf0ef;
     }
-    #connect-form{
+    form{
+      display: none;
       background: white;
       padding: 10px;
     }
-    #connect-form legend{
+    form legend{
       background: #6c7;
       border-radius: 2px;
       border-bottom: 2px solid white;
-      margin-bottom: 10px;
+      padding: 10px;
     }
-    #connect-form .form-control{
+    form h3{
+      margin: 0;
+    }
+    form legend img{
+      vertical-align: top;
+    }
+    form .form-control{
       background: transparent;
       border-bottom: 2px dashed #6c7;
       
       font-size: 18px;
     }
-    #connect-form .form-control:focus{
+    form .form-control:focus{
       border-bottom: 2px dashed #6c7;
     }
-    #connect-form #connect-btn{
+    form .btn-primary{
       background-color: #4ab367;
       font-size: 18px;
       font-weight: bold;
+      border-radius: 6px;
     }
-    
+    form .btn-primary:hover{
+      background-color: #6ec07c;
+    }
+    form .btn-default{
+      color: black;
+      background-color: white;
+    }
+    form .btn-default:hover{
+      color: black;
+      background-color: white;
+    }
+    .push-status{
+      font-weight: bold;
+      font-size: 18px;
+    }
     </style>
 </head>
 <body style="-webkit-app-region: drag">
@@ -47,6 +69,33 @@
       <div class="form-group">
         <div class="col-lg-10 col-lg-offset-2">
           <button type="submit" class="btn btn-primary" id="connect-btn">Connect</button>
+        </div>
+      </div>
+    </fieldset>
+  </form>
+  <form class="form-horizontal" id="new-push-form">
+    <fieldset>
+      <legend><h3><img src="icons/32x32.png"></img>Push something</h3></legend>
+      <div class="form-group">
+        <div class="col-lg-10">
+          <select class="list-of-devices form-control"></select>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="col-lg-10">
+          <input type="text" class="form-control" id="new-push-title" placeholder="Title">
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="col-lg-10">
+          <input type="text" class="form-control" id="new-push-message" placeholder="Message">
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="col-lg-10 col-lg-offset-2">
+          <button type="submit" class="btn btn-primary" id="new-push-btn">Push it!</button>
+          <button type="reset" class="btn btn-default" id="new-push-cancel-btn">Cancel</button>
+          <span class="push-status"></span>
         </div>
       </div>
     </fieldset>

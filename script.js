@@ -2,21 +2,33 @@ var gui = require('nw.gui');
 var win = gui.Window.get();
 var clipboard = gui.Clipboard.get();
 var notifier = require('node-notifier');
+var connectForm = $('#connect-form')
+var newPushForm = $('#new-push-form')
+var pushBulletEndPoint = '';
 
-var api_key = localStorage.getItem('pushbullet-api');
-if($.trim(api_key)){
+var api_key;
+if($.trim(localStorage.getItem('pushbullet-api'))){
+  api_key = localStorage.getItem('pushbullet-api');
   init();
   connect(api_key);
 }else{
   showLogin();
 }
 
-function showLogin(){
-  win.resizeTo(450, 500);
+function showWindow(){
   win.show();
   win.setShowInTaskbar(true);
-  /* focus won't work for some reason */
-  // win.focus(); 
+}
+
+function hideWindow(){
+  win.hide();
+  win.setShowInTaskbar(false);
+}
+
+function showLogin(){
+  win.resizeTo(450, 500);
+  showWindow();
+  connectForm.show();
 }
 
 function saveUser(){
@@ -41,7 +53,8 @@ function init(){
   tray.menu.append(new gui.MenuItem({
     label: 'New Push',
     click: function(){
-      // newPush();
+      showWindow();
+      newPush();
     }
   }));
 
@@ -69,11 +82,30 @@ function init(){
     }
   }));
 
-  win.hide();
-  win.setShowInTaskbar(false);
+  hideWindow();
+}
+
+function newPush(){
+  newPushForm.show();
+  var listOfDevices = newPushForm.find('.list-of-devices');
+  listOfDevices.empty().append($('<option></option>').val(-1).text('All'));
+  $.ajax({
+    url: 'https://api.pushbullet.com/v2/devices',
+    type: 'GET',
+    beforeSend: function(xhr){xhr.setRequestHeader('Authorization', 'Bearer ' + api_key);},
+    success: function (result) {
+      $(result.devices).each(function(i, v){
+        var option = $('<option></option>').val(v.iden).text(v.nickname);
+        listOfDevices.append(option);
+      });
+    }
+  });
 }
 
 function notifyPush(message){
+  console.log('------------------------------------------------------------');
+  console.log(message);
+  return;
   notifier.notify({
     title: message.push.title,
     message: message.push.body,
@@ -100,7 +132,6 @@ function connect(api_key){
               // console.log(result);
               notifyPush(result);
           }
-
       });
     }
   }
@@ -108,8 +139,7 @@ function connect(api_key){
       // messages.innerHTML += "<p>WebSocket onerror</p>";
   }
   websocket.onclose = function(e) {
-      win.show();
-      win.setShowInTaskbar(true);
+      showWindow();
   }
 }
 
@@ -122,14 +152,57 @@ $(document).ready(function(){
     }
   })
   
-  $('#connect-form').submit(function(e){
+  connectForm.submit(function(e){
+    e.preventDefault();
+    
+    api_key = $('#api-key').val();
+    if($.trim(api_key)){
+      $('#api-key').val('');
+      connectForm.hide();
+      saveUser();
+      init();
+      connect(api_key);
+    }
+  });
+
+  newPushForm.submit(function(e){
     e.preventDefault();
 
-    api_key = $('#api-key').val();
-    $('#api-key').val('');
-    saveUser();
-    init();
-    connect(api_key);
+    var self = $(this);
+    var pushStatus = $(this).find('.push-status');
+    var device_iden = $(this).find('.list-of-devices').val();
+    var postData = {
+      type: 'note',
+      title: $('#new-push-title').val(),
+      body: $('#new-push-message').val()
+    };
+    if(device_iden != -1){
+      postData['device_iden'] = device_iden;
+    }
+
+    $.ajax({
+      url: 'https://api.pushbullet.com/v2/pushes',
+      type: 'POST',
+      data: postData,
+      beforeSend: function(xhr){xhr.setRequestHeader('Authorization', 'Bearer ' + api_key);},
+      success: function (result) {
+        pushStatus.addClass('text-success').text('Successfully Pushed !');
+          self[0].reset();
+          setTimeout(function(){
+            pushStatus.text('');
+            hideWindow();
+          }, 2000);
+          // notifyPush(result);
+      },
+      error: function(){
+        pushStatus.addClass('text-danger').text('Oh Snap! Try again');
+      }
+    });
+  });
+
+  $('#new-push-cancel-btn').click(function(){
+    $(this).find('.push-status').text('');
+    hideWindow();
   });
 });
 
