@@ -4,15 +4,17 @@ if(!DEBUG){
   var win = gui.Window.get();
   var clipboard = gui.Clipboard.get();
   var notifier = require('node-notifier');
+  var path = require('path');
 }
 var connectForm = $('#connect-form');
 var newPushForm = $('#new-push-form');
 var allPushesContainer = $('#all-pushes');
 var pushBulletEndPoint = '';
+var latestPushTimestamp;
 
 if(DEBUG){
-  var api_key = 'v1uEIntcDboQvAaiR9lA1OLBeMqNFWZMuPujCGLmvTPxI';
-  allPushes();
+  var api_key = '';
+  newPush();
 }else{
   var api_key;
   if($.trim(localStorage.getItem('pushbullet-api'))){
@@ -112,16 +114,43 @@ function newPush(){
 }
 
 function notifyPush(message){
-  console.log('------------------------------------------------------------');
-  console.log(message);
-  return;
+  var m;
+  if(message.type === "note"){
+    m = {
+      title: message.title,
+      body: message.body
+    };
+  }else if(message.type === "link"){
+    m = {
+      title: message.title,
+      body: message.body + '<br />' + message.url
+    };
+  }else if(message.type === "address"){
+    m = {
+      title: message.name,
+      body: message.address
+    };
+  }else if(message.type === "list"){
+
+
+  }else if(message.type === "file"){
+    m = {
+      title: message.file_name,
+      body : message.body + '<br />' + message.file_url
+    }
+  }
   notifier.notify({
-    title: message.push.title,
-    message: message.push.body,
+    title: m.title,
+    message: m.body,
+    icon: 'icons/128x128.png',
     sound: true,
     wait: true 
   }, function (err, response) {
-    
+    if(message.type === "link"){
+      gui.Shell.openExternal(message.url);
+    }else if(message.type === "file"){
+      gui.Shell.openExternal(message.file_url);
+    }
   });
 }
 
@@ -141,23 +170,31 @@ function allPushes(){
 function connect(api_key){
   websocket = new WebSocket('wss://stream.pushbullet.com/websocket/' + api_key);
   websocket.onopen = function(e) {
-    
+    $.ajax({
+      url: 'https://api.pushbullet.com/v2/pushes?modified_after=0',
+      type: 'GET',
+      beforeSend: function(xhr){xhr.setRequestHeader('Authorization', 'Bearer ' + api_key);},
+      success: function (result) {
+        latestPushTimestamp = result.pushes[0].modified;
+      }
+    });
   }
   websocket.onmessage = function(message) {
     if (JSON.parse(message.data).type == 'tickle') {
-      var timeStamp = message.timeStamp;
       $.ajax({
-          url: 'https://api.pushbullet.com/v2/pushes?modified_after=' + timeStamp,
+          url: 'https://api.pushbullet.com/v2/pushes?modified_after=' + latestPushTimestamp,
           type: 'GET',
           beforeSend: function(xhr){xhr.setRequestHeader('Authorization', 'Bearer ' + api_key);},
           success: function (result) {
-              notifyPush(result);
+            latestPushTimestamp = result.pushes[0].modified;
+            notifyPush(result.pushes[0]);
           }
       });
     }
   }
   websocket.onerror = function(e) {
-      // messages.innerHTML += "<p>WebSocket onerror</p>";
+      signOut();
+      connectForm.find('.status').addClass('text-danger').text('Authentication failed !');
   }
   websocket.onclose = function(e) {
       showWindow();
@@ -279,6 +316,7 @@ $(document).ready(function(){
   connectForm.submit(function(e){
     e.preventDefault();
     
+    connectForm.find('.status').text('');
     api_key = $('#api-key').val();
     if($.trim(api_key)){
       $('#api-key').val('');
@@ -293,7 +331,7 @@ $(document).ready(function(){
     e.preventDefault();
 
     var self = $(this);
-    var pushStatus = $(this).find('.push-status');
+    var pushStatus = $(this).find('.status');
     var device_iden = $(this).find('.list-of-devices').val();
     var postData = {
       type: 'note',
@@ -311,12 +349,12 @@ $(document).ready(function(){
       beforeSend: function(xhr){xhr.setRequestHeader('Authorization', 'Bearer ' + api_key);},
       success: function (result) {
         pushStatus.addClass('text-success').text('Successfully Pushed !');
-          self[0].reset();
-          setTimeout(function(){
-            pushStatus.text('');
-            newPushForm.hide();
-            hideWindow();
-          }, 2000);
+          // self[0].reset();
+          // setTimeout(function(){
+          //   pushStatus.text('');
+          //   newPushForm.hide();
+          //   hideWindow();
+          // }, 2000);
           // notifyPush(result);
       },
       error: function(){
@@ -326,7 +364,7 @@ $(document).ready(function(){
   });
 
   $('#new-push-cancel-btn').click(function(){
-    $(this).find('.push-status').text('');
+    $(this).find('.status').text('');
     newPushForm.hide();
     hideWindow();
   });
@@ -335,6 +373,22 @@ $(document).ready(function(){
     allPushesContainer.hide();
     hideWindow();
   });
+
+  newPushForm.on('change', '#push-type', function(){
+    var type = $(this).val();
+    $('.push-type-input').hide();
+    if(type == 2){
+      $('#new-push-url').fadeIn();
+    }else if(type == 3){
+      $('#new-push-address').fadeIn();
+    }else if(type == 4){
+      $('#new-push-list').fadeIn();
+    }else if(type == 5){
+      $('#new-push-file').fadeIn();
+    }else{
+
+    }
+  })
 });
 
 

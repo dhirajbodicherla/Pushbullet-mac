@@ -18,7 +18,8 @@ A simple desktop (MAC) application on node-webkit using [Pushbullet] APIs
 #####View all pushes<br>
 ![All pushes](/screenshots/all-pushes.png?raw=true)
 
-#####Push notifications or Receiving pushes (coming soon)
+#####Push notifications or Receiving pushes
+![Push notifications](/screenshots/push-notification.png?raw=true)
 
 ###App Download link (coming soon)
 
