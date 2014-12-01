@@ -15,11 +15,12 @@ A simple desktop (MAC) application on node-webkit using [Pushbullet] APIs
 #####Sending a new push<br>
 ![New push](/screenshots/new-push.png?raw=true)
 
-#####View all pushes (coming soon)
+#####View all pushes<br>
+![All pushes](/screenshots/all-pushes.png?raw=true)
 
 #####Push notifications or Receiving pushes (coming soon)
 
-###Download link (coming soon)
+###App Download link (coming soon)
 
 ###Feedback
 Please leave feedback [here]

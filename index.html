@@ -8,21 +8,21 @@
       margin: 10%;
       background: #ecf0ef;
     }
-    form{
+    form, #all-pushes{
       display: none;
       background: white;
       padding: 10px;
     }
-    form legend{
+    legend{
       background: #6c7;
       border-radius: 2px;
       border-bottom: 2px solid white;
       padding: 10px;
     }
-    form h3{
+    h3{
       margin: 0;
     }
-    form legend img{
+    legend img{
       vertical-align: top;
     }
     form .form-control{
@@ -34,28 +34,47 @@
     form .form-control:focus{
       border-bottom: 2px dashed #6c7;
     }
-    form .btn-primary{
+    form .push-status{
+      font-weight: bold;
+      font-size: 18px;
+    }
+    .btn-primary{
       background-color: #4ab367;
       font-size: 18px;
       font-weight: bold;
       border-radius: 6px;
     }
-    form .btn-primary:hover, form .btn-primary:active, form .btn-primary:focus {
+    .btn-primary:hover, .btn-primary:active, .btn-primary:focus {
       outline: none;
       background-color: #6ec07c;
     }
-    form .btn-default{
+    .btn-default{
       color: black;
-      background-color: white;
+      background-color: transparent;
     }
-    form .btn-default:hover, form .btn-default:active, form .btn-default:focus {
+    .btn-default:hover, .btn-default:active, .btn-default:focus {
       outline: none;
       color: black;
-      background-color: white;
+      background-color: transparent;
     }
-    .push-status{
+    .pushes-container ul{
+      list-style-type: none;
+      padding: 0;
+    }
+    .pushes-container .push-item{
+      color: black;
+      border: 1px solid lightgray;
+      background-color: #b0baba;
+      padding: 5px 15px;
+      border-radius: 6px;
+      margin: 5px 0px;
+      word-wrap: break-word;
+    }
+    .note .title, .link .title, .address .name, .file .name{
       font-weight: bold;
-      font-size: 18px;
+    }
+    .push-item p{
+
     }
     </style>
 </head>
@@ -102,7 +121,19 @@
       </div>
     </fieldset>
   </form>
-    <script type="text/javascript" src="jquery.js"></script>
-    <script type="text/javascript" src="script.js"></script>
+  <div id="all-pushes">
+    <legend>
+      <h3>
+        <img src="icons/32x32.png"></img>All pushes
+        <button type="reset" class="btn btn-default close-btn pull-right">Close</button>
+        </h3>
+
+    </legend>
+    <div class="pushes-container">
+      <h3>Loading ...</h3>
+    </div>
+  </div>
+  <script type="text/javascript" src="jquery.js"></script>
+  <script type="text/javascript" src="script.js"></script>
 </body>
 </html>

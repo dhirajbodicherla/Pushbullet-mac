@@ -1,20 +1,28 @@
-var gui = require('nw.gui');
-var win = gui.Window.get();
-var clipboard = gui.Clipboard.get();
-var notifier = require('node-notifier');
-var connectForm = $('#connect-form')
-var newPushForm = $('#new-push-form')
+var DEBUG = 0;
+if(!DEBUG){
+  var gui = require('nw.gui');
+  var win = gui.Window.get();
+  var clipboard = gui.Clipboard.get();
+  var notifier = require('node-notifier');
+}
+var connectForm = $('#connect-form');
+var newPushForm = $('#new-push-form');
+var allPushesContainer = $('#all-pushes');
 var pushBulletEndPoint = '';
 
-var api_key;
-if($.trim(localStorage.getItem('pushbullet-api'))){
-  api_key = localStorage.getItem('pushbullet-api');
-  init();
-  connect(api_key);
+if(DEBUG){
+  var api_key = 'v1uEIntcDboQvAaiR9lA1OLBeMqNFWZMuPujCGLmvTPxI';
+  allPushes();
 }else{
-  showLogin();
+  var api_key;
+  if($.trim(localStorage.getItem('pushbullet-api'))){
+    api_key = localStorage.getItem('pushbullet-api');
+    init();
+    connect(api_key);
+  }else{
+    showLogin();
+  }
 }
-
 function showWindow(){
   win.show();
   win.setShowInTaskbar(true);
@@ -61,7 +69,8 @@ function init(){
   tray.menu.append(new gui.MenuItem({
     label: 'All Pushes',
     click: function(){
-      // allPushes();
+      showWindow();
+      allPushes();
     }
   }));
 
@@ -116,6 +125,19 @@ function notifyPush(message){
   });
 }
 
+function allPushes(){
+  allPushesContainer.show();
+  $.ajax({
+    url: 'https://api.pushbullet.com/v2/pushes?modified_after=0',
+    type: 'GET',
+    beforeSend: function(xhr){xhr.setRequestHeader('Authorization', 'Bearer ' + api_key);},
+    success: function (result) {
+      var pushes = $.grep(result.pushes, function(v){ return v.active === true});
+      pagination(pushes, allPushesContainer.find('.pushes-container').html(''));
+    }
+  });
+}
+
 function connect(api_key){
   websocket = new WebSocket('wss://stream.pushbullet.com/websocket/' + api_key);
   websocket.onopen = function(e) {
@@ -129,7 +151,6 @@ function connect(api_key){
           type: 'GET',
           beforeSend: function(xhr){xhr.setRequestHeader('Authorization', 'Bearer ' + api_key);},
           success: function (result) {
-              // console.log(result);
               notifyPush(result);
           }
       });
@@ -141,6 +162,109 @@ function connect(api_key){
   websocket.onclose = function(e) {
       showWindow();
   }
+}
+
+function pagination(items, el) {
+    this.$el = el;
+    var $ul = $('<ul></ul>');
+    var self = this;
+    var total = items.length;
+    var length = 9;
+    var start = 0;
+    var end = 0;
+    var page = 0;
+    var nextButton = $('<input>')
+        .addClass('btn btn-primary')
+        .attr('type', 'button')
+        .val('More');
+    var closeButton = $('<input>')
+        .addClass('btn btn-default close-btn')
+        .attr('type', 'button')
+        .val('Close');
+    
+    this.$el.append($ul).append(nextButton).append(closeButton);
+    this.paginate = function () {
+        page++;
+        end = length * page < total ? length * page : total;
+        for (var i = start; i < end; i++) {
+          if(items[i].active){
+            var li = $('<li></li>').html(renderPush(items[i]));
+            self.$el.find('ul').append(li);
+          }
+        }
+    };
+    this.paginate();
+    nextButton.on('click', function (e) {
+        if(end === total) return;
+        start += length;
+        self.paginate();
+    });
+}
+
+function renderPush(push){
+  var tpl, data;
+  if(push.type === 'note'){
+    data = {
+      title: push.title,
+      body: push.body
+    };
+    tpl = '<div class="push-item note">'+
+            '<p class="title">{title}</p>'+
+            '<p>{body}</p>'+
+          '</div>';
+  }else if(push.type === 'link'){
+    data = {
+      title: push.title,
+      body: push.body,
+      url: push.url
+    };
+    tpl = '<div class="push-item link">'+
+            '<p class="title">{title}</p>'+
+            '<p class="body">{body}<br/>{url}</p>'+
+          '</div>';
+  }else if(push.type === 'address'){
+    data = {
+      name: push.name,
+      address: push.address
+    };
+    tpl = '<div class="push-item address">'+
+            '<p class="name">{name}</p>'+
+            '<p class="address">{address}</p>'+
+          '</div>';
+  }else if(push.type === 'list'){
+    data = {
+      message: 'work-in-progess'
+    };
+    tpl = '<div>{message}</div>';
+  }else if(push.type === 'file'){
+    data = {
+      file_name: push.file_name,
+      file_type: push.file_type,
+      file_url: push.file_url,
+      body: push.body
+    }
+    tpl = '<div class="push-item file">'+
+            '<p class="name">{file_name}</p>'+
+            '<p class="body">{body}</p>'+
+            '<p class="url">{file_url}</p>'+
+          '</div>';
+  }else{
+    data = -1;
+  }
+
+  return data === -1 ? null : nano(tpl, data);
+}
+
+function nano(template, data) {
+
+  /* Nano Templates (Tomasz Mazur, Jacek Becela) */
+
+
+  return template.replace(/\{([\w\.]*)\}/g, function(str, key) {
+    var keys = key.split("."), v = data[keys.shift()];
+    for (var i = 0, l = keys.length; i < l; i++) v = v[keys[i]];
+    return (typeof v !== "undefined" && v !== null) ? v : "";
+  });
 }
 
 $(document).ready(function(){
@@ -189,8 +313,9 @@ $(document).ready(function(){
         pushStatus.addClass('text-success').text('Successfully Pushed !');
           self[0].reset();
           setTimeout(function(){
-            // pushStatus.text('');
-            // hideWindow();
+            pushStatus.text('');
+            newPushForm.hide();
+            hideWindow();
           }, 2000);
           // notifyPush(result);
       },
@@ -202,6 +327,12 @@ $(document).ready(function(){
 
   $('#new-push-cancel-btn').click(function(){
     $(this).find('.push-status').text('');
+    newPushForm.hide();
+    hideWindow();
+  });
+
+  allPushesContainer.on('click', '.close-btn',function(){
+    allPushesContainer.hide();
     hideWindow();
   });
 });
