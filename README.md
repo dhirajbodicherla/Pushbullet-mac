@@ -13,13 +13,13 @@ A simple desktop (MAC) application on node-webkit using [Pushbullet] APIs
 ![Tray](/screenshots/tray.png?raw=true)
 
 #####Sending a new push<br>
-###### Pushes only notes for now.<br>
+###### Pushes only notes for now.(work in progress)<br>
 ![New push](/screenshots/new-push.png?raw=true)
 
 #####View all pushes<br>
 ![All pushes](/screenshots/all-pushes.png?raw=true)
 
-#####Push notifications or Receiving pushes<br>
+#####Push notifications or Receiving pushes(work in progress)<br>
 ###### Works with all types of pushes <br>
 ![Push notifications](/screenshots/push-notification.png?raw=true)
 
