@@ -1,5 +1,5 @@
-Pushbullet for MAC
-==================
+Pushbullet for MAC (Abandoned. Official app will be released soon)
+===================================================================
 
 A simple desktop (MAC) application on node-webkit using [Pushbullet] APIs
 <br>If you do not have chrome or firefox open and you still want to receive messages from Pushbullet.
