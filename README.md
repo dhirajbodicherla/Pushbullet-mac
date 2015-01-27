@@ -1,4 +1,4 @@
-Pushbullet for MAC (Abandoned. Official app will be released soon)
+Pushbullet for MAC
 ===================================================================
 
 A simple desktop (MAC) application on node-webkit using [Pushbullet] APIs
